@@ -19,13 +19,19 @@ key_press_times = {}
 lock = threading.Lock()
 
 def build_message(key):
+    max_time = 2
+    max_force = 100
     with lock:
         press_time = key_press_times.get(key)
     if press_time is not None:
-        duration = time.time() - press_time
+        force = int(((time.time() - press_time)/max_time)*max_force)
+        #duration = time.time() - press_time
+        if force > max_force:
+            force = max_force
     else:
-        duration = 0.0
-    return f"{key}: {duration:.2f} seconds".encode()
+        force = 0
+        #duration = 0.0
+    return f"190{force}".encode()
 
 def send_packets(key, src_port, dst_ip, dst_port):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
